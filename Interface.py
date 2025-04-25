@@ -1,29 +1,31 @@
 from tkinter import *
 from tkinter import ttk
 import main
-from main import api_request, films_titles
-import random
+from main import api_request
 
 
 
+#  Main function for submit button
 def submit_button():
+    title_list = main.films_titles(unit_requests())
 
+    list_box(title_list)
+
+    clear_checkbutton()
+
+# Function to check pressed checkbuttons
+def pressed_checkbuttons():
     list_of_getting = []
     list_of_var = [var1, var2, var3, var4, var5, var6, var7, var8]
     labels = [28, 18, 35, 12, 14, 53, 99, 10751]
     for i in range(len(list_of_var)):
         if list_of_var[i].get() != 0:
             list_of_getting.append(labels[i])
-
-    js_file = main.api_request(list_of_getting, 1, filter_buttons_check())
-
-    title_list = main.films_titles(js_file)
-
-    list_box(title_list)
-
-    clear_checkbutton()
+    return list_of_getting
 
 
+
+# This Function cleaning checkbuttons
 def clear_checkbutton():
     check_buttons = [checkbutton_1, checkbutton_2, checkbutton_3, checkbutton_4,
                      checkbutton_5, checkbutton_6, checkbutton_7, checkbutton_8,
@@ -33,12 +35,7 @@ def clear_checkbutton():
         if btn.winfo_exists():
             btn.deselect()
 
-
-def list_box(list_of_names_films):
-    list_1.delete(0, END)
-    for i in list_of_names_films:
-        list_1.insert(END, i)
-
+# Function to detect what filter radiobutton was pressed
 def filter_buttons_check():
     dict_of_filters_var = {
         1: "popularity.desc",
@@ -54,12 +51,29 @@ def filter_buttons_check():
 
     return filters_to_send
 
+# Function to unite two api_requests to one json file
+def unit_requests():
+    combined_results = []
 
+    for item in range(1, 3):  # дві сторінки
+        response = api_request(pressed_checkbuttons(), item, filter_buttons_check())
+        if type(response) == dict and "results" in response:
+            combined_results.extend(response["results"])
+        else:
+            print(f"Помилка: {response}")
+    final_data = {"results": combined_results}
+    return final_data
+
+# Function take list with name film and add them to listbox
+def list_box(list_of_names_films):
+    list_1.delete(0, END)
+    for i in list_of_names_films:
+        list_1.insert(END, i)
 
 #  MAIN WINDOW
 root = Tk()
 root.title("Window")
-root.geometry("1280x720")
+root.geometry("1410x810")
 root.resizable(width=True, height=True)
 
 
